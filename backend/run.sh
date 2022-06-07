@@ -13,7 +13,7 @@ block_node2() {
 }
 
 block_node3() {
-  go run $BASE_DIR/app/blockchain_node_server/main.go --addr=0.0.0.0:5002
+  go run $BASE_DIR/app/blockchain_node_server/main.go --addr=0.0.0.0:5003
 }
 
 wallet1() {

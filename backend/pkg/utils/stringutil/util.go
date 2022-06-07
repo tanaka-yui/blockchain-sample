@@ -62,6 +62,14 @@ func ConvertStringToUint32(val string) uint32 {
 	return uint32(value)
 }
 
+func ConvertStringToUint16(val string) uint16 {
+	value, err := strconv.ParseUint(val, 10, 16)
+	if err != nil {
+		return 0
+	}
+	return uint16(value)
+}
+
 func ConvertStringToInt64(val string) int64 {
 	value, err := strconv.ParseInt(val, 10, 64)
 	if err != nil {

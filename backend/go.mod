@@ -6,6 +6,7 @@ require (
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/go-playground/validator/v10 v10.11.0
 	github.com/joho/godotenv v1.4.0
+	github.com/pkg/errors v0.8.1
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/spf13/cobra v1.4.0
 	go.uber.org/zap v1.21.0

@@ -7,6 +7,10 @@ import (
 	"blockchain/pkg/logger"
 	"blockchain/pkg/server/cron"
 	"blockchain/pkg/server/http"
+	"blockchain/pkg/utils/stringutil"
+	"flag"
+	"fmt"
+	"strings"
 )
 
 func main() {
@@ -17,9 +21,14 @@ func main() {
 
 	c := command.NewCommand()
 	httpFlag := http.SetFlag(c)
-	cronServer := cron.New(logger.Logging.GetZapLogger())
+	var addr string
+	flag.StringVar(&addr, "addr", "0.0.0.0:8080", "TCP Port Number for Wallet Server")
+	flag.Parse()
+	logger.Logging.Info(fmt.Sprintf("localAddr:%s", addr))
 
-	a := api.NewApi(cfg, &cronServer)
+	port := stringutil.ConvertStringToUint16(strings.Split(addr, ":")[1])
+	cronServer := cron.New(logger.Logging.GetZapLogger())
+	a := api.NewApi(port, cfg, &cronServer)
 	httpServer := http.NewServer(a.Router)
 
 	signal := c.WaitSignal(func() {
@@ -28,7 +37,7 @@ func main() {
 			http.WithFlag(httpFlag),
 		)
 	})
-
 	cronServer.Stop(signal)
 	httpServer.Stop(signal)
+
 }
