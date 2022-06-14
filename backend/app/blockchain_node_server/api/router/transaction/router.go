@@ -17,9 +17,14 @@ func RegisterRouter(
 		cfg:                cfg,
 		transactionUseCase: transactionUseCase,
 	}
-	router.Route("/blockchain/transactions", func(a chi.Router) {
-		a.Get("/", f.GetTransactionPool)
-		a.Post("/", f.CreateTransaction)
-		a.Put("/", f.PutTransaction)
+	router.Route("/blockchain", func(a chi.Router) {
+		a.Route("/chains", func(b chi.Router) {
+			b.Get("/", f.GetChain)
+		})
+		a.Route("/transactions", func(b chi.Router) {
+			b.Get("/", f.GetTransactionPool)
+			b.Post("/", f.CreateTransaction)
+			b.Put("/", f.PutTransaction)
+		})
 	})
 }

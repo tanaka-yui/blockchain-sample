@@ -7,3 +7,7 @@ type PutRequest struct {
 	Value                      float32 `json:"value,omitempty"`
 	Signature                  string  `json:"signature,omitempty"`
 }
+
+type GetChainResponse struct {
+	Chain []string `json:"chain"`
+}

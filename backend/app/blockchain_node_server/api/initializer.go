@@ -35,4 +35,5 @@ func initJob(a *api) {
 	// "@every 1m" for debug
 	a.cron.AddFunc("@every 10s", a.transactionUseCase.FineNeighbors)
 	a.cron.AddFunc("@every 10s", a.transactionUseCase.DebugTransactionPool)
+	a.cron.AddFunc("@every 10s", a.transactionUseCase.Mining)
 }

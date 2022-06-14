@@ -16,6 +16,18 @@ type facade struct {
 	transactionUseCase transactionusecase.UseCase
 }
 
+func (f *facade) GetChain(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	result, err := f.transactionUseCase.GetChain()
+	if err != nil {
+		response.ErrorResponse(ctx, w, err)
+		return
+	}
+
+	response.OKWithMsg(ctx, w, result)
+}
+
 func (f *facade) GetTransactionPool(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	response.OKWithMsg(ctx, w, &struct {

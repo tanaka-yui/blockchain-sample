@@ -1,6 +1,7 @@
 package transactionusecase
 
 import (
+	"blockchain/internal/domain"
 	transactionrepository "blockchain/internal/repository/transaction"
 	"blockchain/pkg/config"
 	"blockchain/pkg/logger"
@@ -15,6 +16,8 @@ type (
 	UseCase interface {
 		FineNeighbors()
 		DebugTransactionPool()
+		Mining()
+		GetChain() ([]*domain.Block, error)
 		CreateTransaction(input *CreatePutTransactionInput) error
 		AddTransaction(input *CreatePutTransactionInput) error
 	}
@@ -24,8 +27,10 @@ type (
 		transactionRepository transactionrepository.Repository
 
 		lock            sync.Mutex
+		lockMining      sync.Mutex
 		nodeIpAddresses []string
-		transactionPool []*Transaction
+		transactionPool []*domain.BlockTransaction
+		chain           []*domain.Block
 	}
 )
 
@@ -39,7 +44,8 @@ func NewUseCase(
 		cfg:                   cfg,
 		transactionRepository: transactionRepository,
 		nodeIpAddresses:       []string{},
-		transactionPool:       []*Transaction{},
+		transactionPool:       []*domain.BlockTransaction{},
+		chain:                 []*domain.Block{},
 	}
 }
 
@@ -48,6 +54,9 @@ const (
 	BlockchainPortRangeEnd   = 5003
 	NeighborIpRangeStart     = 0
 	NeighborIpRangeEnd       = 1
+
+	MiningSender = "THE BLOCKCHAIN"
+	MiningReward = 1.0
 )
 
 func (uc *useCaseImpl) setNodeIpAddresses(nodeIpAddresses []string) {
@@ -67,10 +76,36 @@ func (uc *useCaseImpl) FineNeighbors() {
 
 func (uc *useCaseImpl) DebugTransactionPool() {
 	logger.Logging.Info(strings.Repeat("-", 40))
-	for _, v := range uc.transactionPool {
-		logger.Logging.Info(fmt.Sprintf("SenderBlockchainAddress:%s, RecipientBlockchainAddress:%s, Value:%f", v.SenderBlockchainAddress, v.RecipientBlockchainAddress, v.Value))
+	for _, v := range uc.chain {
+		v.Print()
 	}
 	logger.Logging.Info(strings.Repeat("-", 40))
+}
+
+func (uc *useCaseImpl) Mining() {
+	uc.lockMining.Lock()
+	defer uc.lockMining.Unlock()
+
+	if err := uc.AddTransaction(&CreatePutTransactionInput{
+		SenderBlockchainAddress: MiningSender,
+		Value:                   MiningReward,
+	}); err != nil {
+		logger.Logging.Warn(err.Error())
+	}
+
+	nonce := uc.proofOfWork()
+	previousHash := uc.lastBlock().Hash()
+
+	uc.CreateBlock(nonce, previousHash)
+}
+
+func (uc *useCaseImpl) CreateBlock(nonce int, previousHash [32]byte) {
+	b := domain.NewBlock(nonce, previousHash, uc.transactionPool)
+	uc.chain = append(uc.chain, b)
+}
+
+func (uc *useCaseImpl) GetChain() ([]*domain.Block, error) {
+	return uc.chain, nil
 }
 
 func (uc *useCaseImpl) CreateTransaction(input *CreatePutTransactionInput) error {
@@ -92,8 +127,8 @@ func (uc *useCaseImpl) CreateTransaction(input *CreatePutTransactionInput) error
 }
 
 func (uc *useCaseImpl) AddTransaction(input *CreatePutTransactionInput) error {
-	t := Transaction{input.SenderBlockchainAddress, input.RecipientBlockchainAddress, input.Value}
-	uc.transactionPool = append(uc.transactionPool, &t)
+	t := domain.NewBlockTransaction(input.SenderBlockchainAddress, input.RecipientBlockchainAddress, input.Value)
+	uc.transactionPool = append(uc.transactionPool, t)
 
 	return nil
 }
