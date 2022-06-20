@@ -1,14 +1,18 @@
 import CssBaseline from "@mui/material/CssBaseline";
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 
 import App from "./App";
 
-ReactDOM.render(
-  <BrowserRouter>
-    <CssBaseline />
-    <App />
-  </BrowserRouter>,
-  document.getElementById("root")
-);
+const container = document.getElementById("root");
+
+if (container) {
+  const root = createRoot(container);
+  root.render(
+    <BrowserRouter>
+      <CssBaseline />
+      <App />
+    </BrowserRouter>
+  );
+}

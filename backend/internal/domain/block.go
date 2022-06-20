@@ -30,6 +30,18 @@ func NewBlock(nonce int, previousHash [32]byte, transactions []*BlockTransaction
 	}
 }
 
+func (b *Block) Transactions() []*BlockTransaction {
+	return b.transactions
+}
+
+func (b *Block) PreviousHash() [32]byte {
+	return b.previousHash
+}
+
+func (b *Block) Nonce() int {
+	return b.nonce
+}
+
 func (b *Block) Print() {
 	fmt.Printf("%s\n", strings.Repeat("-", 40))
 	log.Println(fmt.Sprintf("hash:%x", b.Hash()))

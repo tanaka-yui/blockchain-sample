@@ -17,10 +17,12 @@ block_node3() {
 }
 
 wallet1() {
+  export NODE_GATEWAY=http://0.0.0.0:5001
   go run $BASE_DIR/app/wallet_server/main.go --addr=0.0.0.0:8080
 }
 
 wallet2() {
+  export NODE_GATEWAY=http://0.0.0.0:5003
   go run $BASE_DIR/app/wallet_server/main.go --addr=0.0.0.0:8081
 }
 

@@ -1,41 +1,77 @@
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect } from "react";
+import { useAmount, useSendMoney, useWallet } from "~/components/pages/hocks";
+import { Box, Container } from "@mui/material";
 
 const Index: React.FC = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const { publicKey, privateKey, blockchainAddress, createWallet } =
+    useWallet();
 
-  const navigate = useNavigate();
+  const { recipientKey, setRecipientKey, amount, setAmount, sendMoney } =
+    useSendMoney();
 
-  const loginUser = async () => {
+  const { currentAmount, getAmount } = useAmount();
+
+  const callCreateWallet = async () => {
     try {
-      navigate("/home");
+      const res = await createWallet();
+      console.log(res);
     } catch (e) {
       console.error(e);
-      setError("ログインに失敗しました");
     }
   };
 
+  useEffect(() => {
+    callCreateWallet();
+    return () => {};
+  }, []);
+
+  useEffect(() => {
+    const intervalId = setInterval(async () => {
+      await getAmount(blockchainAddress);
+    }, 5000);
+    getAmount(blockchainAddress);
+    return () => {
+      clearTimeout(intervalId);
+    };
+  }, [blockchainAddress]);
+
   return (
-    <div>
-      <div>
-        Email:
-        <TextField value={email} onChange={(e) => setEmail(e.target.value)} />
-      </div>
-      <div>
-        Password:
+    <Container>
+      <h1>Wallet</h1>
+      <h2>Public Key</h2>
+      <p>{publicKey}</p>
+      <h2>Private Key</h2>
+      <p>{privateKey}</p>
+      <h2>BlockChain Address</h2>
+      <p>{blockchainAddress}</p>
+      <h2>Wallet Amount</h2>
+      <p>{currentAmount || 0}</p>
+      <hr />
+      <Box>
+        <h2>Send Money</h2>
+        <h3>Recipient Key</h3>
         <TextField
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          value={recipientKey}
+          fullWidth
+          onChange={(e) => setRecipientKey(e.target.value)}
         />
-      </div>
-      <Button onClick={loginUser}>ログイン</Button>
-      {error && <p>{error}</p>}
-    </div>
+        <h3>Amount</h3>
+        <TextField
+          value={amount}
+          fullWidth
+          onChange={(e) => setAmount(e.target.value)}
+        />
+      </Box>
+      <hr />
+      <Button
+        variant="outlined"
+        onClick={() => sendMoney(privateKey, publicKey, blockchainAddress)}
+      >
+        Send
+      </Button>
+    </Container>
   );
 };
 

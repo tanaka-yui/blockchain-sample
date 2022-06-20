@@ -13,3 +13,7 @@ type CreatePutTransactionInput struct {
 	Value                      float32
 	Signature                  string
 }
+
+type GetAmountInput struct {
+	BlockchainAddress string
+}

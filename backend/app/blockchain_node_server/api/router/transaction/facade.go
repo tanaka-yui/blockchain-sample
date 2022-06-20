@@ -25,16 +25,27 @@ func (f *facade) GetChain(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response.OKWithMsg(ctx, w, result)
+	response.OKWithMsg(ctx, w, &GetChainResponse{
+		Chain: result,
+	})
 }
 
 func (f *facade) GetTransactionPool(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	response.OKWithMsg(ctx, w, &struct {
-		Ok bool `json:"ok"`
-	}{
-		Ok: true,
+
+	result := f.transactionUseCase.GetTransactionPool()
+
+	response.OKWithMsg(ctx, w, &GetTransactionResponse{
+		Transactions: result,
 	})
+}
+
+func (f *facade) ClearTransactionPool(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	f.transactionUseCase.ClearTransactionPool()
+
+	response.OK(ctx, w)
 }
 
 func (f *facade) CreateTransaction(w http.ResponseWriter, r *http.Request) {
@@ -79,7 +90,34 @@ func (f *facade) PutTransaction(w http.ResponseWriter, r *http.Request) {
 		Signature:                  body.Signature,
 	}
 
-	if err := f.transactionUseCase.AddTransaction(&input); err != nil {
+	if success := f.transactionUseCase.AddTransaction(&input); !success {
+		response.BadRequest(ctx, w)
+		return
+	}
+
+	response.OK(ctx, w)
+}
+
+func (f *facade) GetAmount(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	result, err := f.transactionUseCase.GetAmount(&transactionusecase.GetAmountInput{
+		BlockchainAddress: json.Query(r, "blockchainAddress"),
+	})
+	if err != nil {
+		response.ErrorResponse(ctx, w, err)
+		return
+	}
+
+	response.OKWithMsg(ctx, w, &GetWalletResponse{
+		Amount: result,
+	})
+}
+
+func (f *facade) Consensus(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	if err := f.transactionUseCase.Consensus(); err != nil {
 		response.ErrorResponse(ctx, w, err)
 		return
 	}

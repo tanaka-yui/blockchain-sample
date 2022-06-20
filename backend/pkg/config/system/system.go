@@ -18,6 +18,7 @@ type Http struct {
 	SessionSecure          bool
 	SessionExpireMinute    int64
 	OAuthTokenExpireMinute int64
+	NodeGateway            string
 }
 
 func NewConfig() Config {
@@ -28,6 +29,7 @@ func NewConfig() Config {
 		SessionSecure:          stringutil.ConvertBool(os.Getenv("HTTP_SESSION_SECURE")),
 		SessionExpireMinute:    stringutil.ConvertStringToInt64(os.Getenv("HTTP_SESSION_EXPIRE_MINUTE")),
 		OAuthTokenExpireMinute: stringutil.ConvertStringToInt64(os.Getenv("OAUTH_TOKEN_EXPIRE_MINUTE")),
+		NodeGateway:            os.Getenv("NODE_GATEWAY"),
 	}
 	return Config{
 		Env:      os.Getenv("ENV"),

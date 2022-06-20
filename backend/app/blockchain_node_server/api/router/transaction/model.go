@@ -1,5 +1,7 @@
 package transaction
 
+import "blockchain/internal/domain"
+
 type PutRequest struct {
 	SenderBlockchainAddress    string  `json:"senderBlockchainAddress,omitempty"`
 	RecipientBlockchainAddress string  `json:"recipientBlockchainAddress,omitempty"`
@@ -9,5 +11,13 @@ type PutRequest struct {
 }
 
 type GetChainResponse struct {
-	Chain []string `json:"chain"`
+	Chain []*domain.Block `json:"chain"`
+}
+
+type GetWalletResponse struct {
+	Amount float32 `json:"amount"`
+}
+
+type GetTransactionResponse struct {
+	Transactions []*domain.BlockTransaction `json:"transactions"`
 }
